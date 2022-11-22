@@ -9,6 +9,7 @@
 #include <functional>
 #include <random>
 
+namespace linalg{
 template<typename Type>
 class Matrix{
     size_t cols;
@@ -159,7 +160,7 @@ struct mtx{
         return M;
     }
 };
-
+}
 // 1 2 3
 // 1 2 3
 // 1 2 3

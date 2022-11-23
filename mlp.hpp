@@ -15,7 +15,7 @@ namespace nn{
         std::vector<Matrix<T>> activations;
         float lr;
 
-        explicit MLP(std::vector<size_t> unitsPerLayer,float lr=.001f):unitsPerLayer(unitsPerLayer),biasVector(),weightMatrics(),lr(lr){
+        explicit MLP(std::vector<size_t> unitsPerLayer,float lr=.001f):unitsPerLayer(unitsPerLayer),biasVector(),weightMatrices(),lr(lr){
             for(size_t i=0;i<unitsPerLayer.size()-1;++i){
                 size_t inChannels{unitsPerLayer[i]};
                 size_t outChannels{unitsPerLayer[i]+1};
@@ -28,6 +28,36 @@ namespace nn{
 
                 activations.resize(unitsPerLayer.size());
             }
+        }
+
+        inline auto sigmoid(float x){
+            return 1.0f/(1+exp(-x));
+        }
+
+        inline auto d_sigmoid(float x){
+            return (x*(1-x));
+        }
+
+        auto forward(Matrix<T> x){
+            assert(get<0>(x.shape)==unitsPerLayer[0]&&get<1>(x.shape));
+            activations[0]=x;
+            Matrix prev(x);
+            for(int i=0;i<unitsPerLayer.size()-1;i++){
+                Matrix y=weightMatrices[i].matmul(prev);
+                y+=biasVector[i];
+                y=y.applyFunction(&sigmoid);
+                activations[i+1]=y;
+                prev=y;
+            }
+            return prev;
+        }
+
+        void backprop(Matrix<T> target){
+            assert(get<0>(target.shape)==unitsPerLayer.back());
+
+            auto y=target;
+            auto y_hat=activations.back();
+            auto error=target-y_hat;
         }
     };
 }

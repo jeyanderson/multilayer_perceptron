@@ -17,7 +17,7 @@ namespace nn{
 
         explicit MLP(std::vector<size_t> unitsPerLayer,float lr=.001f):unitsPerLayer(unitsPerLayer),biasVectors(),weightMatrices(),lr(lr){
             for(size_t i=0;i<unitsPerLayer.size()-1;++i){
-                size_t inChannels{unitsPerLayer[i]},outChannels{unitsPerLayer[i]+1};
+                size_t inChannels=unitsPerLayer[i],outChannels=unitsPerLayer[i+1];
 
                 auto w=linalg::mtx<T>::randn(outChannels,inChannels);
                 weightMatrices.push_back(w);
@@ -29,11 +29,11 @@ namespace nn{
             }
         }
 
-        inline auto sigmoid(float x){
+        static auto sigmoid(float x){
             return 1.0f/(1+exp(-x));
         }
 
-        inline auto dSigmoid(float x){
+        static auto dSigmoid(float x){
             return (x*(1-x));
         }
 
@@ -41,10 +41,10 @@ namespace nn{
             assert(get<0>(x.shape)==unitsPerLayer[0]&&get<1>(x.shape));
             activations[0]=x;
             Matrix prev(x);
-            for(int i=0;i<unitsPerLayer.size()-1;i++){
+            for(int i=0;i<unitsPerLayer.size()-1;++i){
                 Matrix y=weightMatrices[i].matmul(prev);
-                y+=biasVectors[i];
-                y=y.applyFunction(&sigmoid);
+                y=y+biasVectors[i];
+                y=y.applyFunction(sigmoid);
                 activations[i+1]=y;
                 prev=y;
             }
@@ -57,19 +57,27 @@ namespace nn{
             auto y=target;
             auto yHat=activations.back();
             auto error=target-yHat;
-
-            for(int i=weightMatrices.size()-1;i>=0;--i{
-                auto Wt=weightMatrices[i].T;
+            for(int i=weightMatrices.size()-1;i>=0;--i){
+                auto Wt=weightMatrices[i].T();
+                //calculate the errors in the activations of the previous layer
+                //Etotal/Eout01
                 auto prevErrors=Wt.matmul(error);
-
-                auto dOutputs=activations[i+1].applyfunction(dSigmoid);
+                //calculate the gradients of the activations of the current layer with respect to the error
+                //Eout01/Enet01
+                auto dOutputs=activations[i+1].applyFunction(dSigmoid);
                 auto gradients=error.multiplyElementwise(dOutputs);
+                //scale gradients by the learning rate
                 gradients=gradients.multiplyScalar(lr);
                 auto At=activations[i].T();
+                //calculate the gradients of the weights of the current layer
+                //EnetO1/Ew (weights) = outH1
                 auto weightGradients=gradients.matmul(At);
-
+                //adjust the biases
+                // std::cout << i << std::endl;
                 biasVectors[i]=biasVectors[i].add(gradients);
+                //adjust the weights
                 weightMatrices[i]=weightMatrices[i].add(weightGradients);
+                //set the errors to the previous layer ones
                 error=prevErrors;
             }
         }

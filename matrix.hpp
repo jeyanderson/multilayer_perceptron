@@ -45,17 +45,18 @@ class Matrix{
     }
 
     Matrix matmul(Matrix &target) {
-    assert(cols == target.rows);
-    Matrix output(rows, target.cols);
+        // std::cout<< rows << "," << target.rows<< std::endl;
+        assert(cols == target.rows);
+        Matrix output(rows, target.cols);
 
-    for (size_t r = 0; r < output.rows; ++r) {
-      for (size_t c = 0; c < output.cols; ++c) {
-        for (size_t k = 0; k < target.rows; ++k)
-          output(r, c) += (*this)(r, k) * target(k, c);
-      }
+        for (size_t r = 0; r < output.rows; ++r) {
+        for (size_t c = 0; c < output.cols; ++c) {
+            for (size_t k = 0; k < target.rows; ++k)
+            output(r, c) += (*this)(r, k) * target(k, c);
+        }
+        }
+        return output;
     }
-    return output;
-  }
 
     Matrix multiplyElementwise(Matrix &target){
         assert(shape==target.shape);
@@ -117,6 +118,7 @@ class Matrix{
     }
 
     Matrix transpose(){
+        std::cout << cols << std::endl;
         Matrix transposed(cols,rows);
         for(size_t r=0;r<rows;++r){
             for(size_t c=0;c<cols;++c){

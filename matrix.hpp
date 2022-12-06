@@ -22,7 +22,7 @@ class Matrix{
 
     Matrix(size_t rows,size_t cols):rows(rows),cols(cols),data({}){
         data.resize(rows*cols,Type());
-        shape={rows,cols};
+        shape=std::make_tuple(rows,cols);
     }
     Matrix():cols(0),rows(0),data({}){shape={rows,cols};};
 
@@ -41,6 +41,8 @@ class Matrix{
     }
 
     Type& operator()(size_t row,size_t col){
+        assert (0 <= row && row < rows);
+        assert (0 <= col && col < cols);
         return data[row*cols+col];
     }
 
@@ -118,10 +120,9 @@ class Matrix{
     }
 
     Matrix transpose(){
-        std::cout << cols << std::endl;
         Matrix transposed(cols,rows);
-        for(size_t r=0;r<rows;++r){
-            for(size_t c=0;c<cols;++c){
+        for(size_t r=0;r<cols;++r){
+            for(size_t c=0;c<rows;++c){
                 transposed(r,c)=(*this)(c,r);
             }
         }

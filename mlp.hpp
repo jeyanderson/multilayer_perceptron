@@ -73,7 +73,6 @@ namespace nn{
                 //EnetO1/Ew (weights) = outH1
                 auto weightGradients=gradients.matmul(At);
                 //adjust the biases
-                // std::cout << i << std::endl;
                 biasVectors[i]=biasVectors[i].add(gradients);
                 //adjust the weights
                 weightMatrices[i]=weightMatrices[i].add(weightGradients);

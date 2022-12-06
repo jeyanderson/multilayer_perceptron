@@ -17,8 +17,7 @@ namespace nn{
 
         explicit MLP(std::vector<size_t> unitsPerLayer,float lr=.001f):unitsPerLayer(unitsPerLayer),biasVectors(),weightMatrices(),lr(lr){
             for(size_t i=0;i<unitsPerLayer.size()-1;++i){
-                size_t inChannels{unitsPerLayer[i]};
-                size_t outChannels{unitsPerLayer[i]+1};
+                size_t inChannels{unitsPerLayer[i]},outChannels{unitsPerLayer[i]+1};
 
                 auto w=linalg::mtx<T>::randn(outChannels,inChannels);
                 weightMatrices.push_back(w);
@@ -72,7 +71,6 @@ namespace nn{
                 biasVectors[i]=biasVectors[i].add(gradients);
                 weightMatrices[i]=weightMatrices[i].add(weightGradients);
                 error=prevErrors;
-
             }
         }
     };

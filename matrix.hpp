@@ -57,7 +57,7 @@ class Matrix{
     return output;
   }
 
-    Matrix multiply_elementwise(Matrix &target){
+    Matrix multiplyElementwise(Matrix &target){
         assert(shape==target.shape);
         Matrix output((*this));
         for(size_t r=0;r<rows;++r){
@@ -72,7 +72,7 @@ class Matrix{
         return multiply_elementwise((*this));
     }
 
-    Matrix multiply_scalar(Type scalar){
+    Matrix multiplyScalar(Type scalar){
         Matrix output((*this));
         for(size_t r=0;r<rows;++r){
             for(size_t c=0;c<cols;++c){

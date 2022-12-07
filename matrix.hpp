@@ -72,7 +72,7 @@ class Matrix{
     }
 
     Matrix square(){
-        return multiply_elementwise((*this));
+        return multiplyElementwise((*this));
     }
 
     Matrix multiplyScalar(Type scalar){
@@ -162,6 +162,20 @@ struct mtx{
         }
         return M;
     }
+    static Matrix<T> rand(size_t rows, size_t cols) {
+    Matrix<T> M{rows, cols};
+
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    std::uniform_real_distribution<T> d{0, 1};
+
+    for (size_t r = 0; r < rows; ++r) {
+      for (int c = 0; c < cols; ++c) {
+        M(r, c) = d(gen);
+      }
+    }
+    return M;
+  }
 };
 }
 // 1 2 3

@@ -19,25 +19,25 @@ namespace nn{
             for(size_t i=0;i<unitsPerLayer.size()-1;++i){
                 size_t inChannels=unitsPerLayer[i],outChannels=unitsPerLayer[i+1];
 
-                auto w=linalg::mtx<T>::randn(outChannels,inChannels);
+                Matrix w=linalg::mtx<T>::randn(outChannels,inChannels);
                 weightMatrices.push_back(w);
 
-                auto b=linalg::mtx<T>::randn(outChannels,1);
+                Matrix b=linalg::mtx<T>::randn(outChannels,1);
                 biasVectors.push_back(b);
 
                 activations.resize(unitsPerLayer.size());
             }
         }
 
-        static auto sigmoid(float x){
+        static float sigmoid(float x){
             return 1.0f/(1+exp(-x));
         }
 
-        static auto dSigmoid(float x){
+        static float dSigmoid(float x){
             return (x*(1-x));
         }
 
-        auto forward(Matrix<T> x){
+        Matrix<T> forward(Matrix<T> x){
             assert(get<0>(x.shape)==unitsPerLayer[0]&&get<1>(x.shape));
             activations[0]=x;
             Matrix prev(x);
@@ -54,24 +54,24 @@ namespace nn{
         void backprop(Matrix<T> target){
             assert(get<0>(target.shape)==unitsPerLayer.back());
 
-            auto y=target;
-            auto yHat=activations.back();
-            auto error=target-yHat;
+            Matrix y=target;
+            Matrix yHat=activations.back();
+            Matrix error=target-yHat;
             for(int i=weightMatrices.size()-1;i>=0;--i){
-                auto Wt=weightMatrices[i].T();
+                Matrix Wt=weightMatrices[i].T();
                 //calculate the errors in the activations of the previous layer
                 //Etotal/Eout01
-                auto prevErrors=Wt.matmul(error);
+                Matrix prevErrors=Wt.matmul(error);
                 //calculate the gradients of the activations of the current layer with respect to the error
                 //Eout01/Enet01
-                auto dOutputs=activations[i+1].applyFunction(dSigmoid);
-                auto gradients=error.multiplyElementwise(dOutputs);
+                Matrix dOutputs=activations[i+1].applyFunction(dSigmoid);
+                Matrix gradients=error.multiplyElementwise(dOutputs);
                 //scale gradients by the learning rate
                 gradients=gradients.multiplyScalar(lr);
-                auto At=activations[i].T();
+                Matrix At=activations[i].T();
                 //calculate the gradients of the weights of the current layer
                 //EnetO1/Ew (weights) = outH1
-                auto weightGradients=gradients.matmul(At);
+                Matrix weightGradients=gradients.matmul(At);
                 //adjust the biases
                 biasVectors[i]=biasVectors[i].add(gradients);
                 //adjust the weights

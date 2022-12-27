@@ -3,7 +3,6 @@
 #include <random>
 #include <utility>
 #include <cassert>
-
 using namespace linalg;
 namespace nn{
     template<typename T>
@@ -14,7 +13,6 @@ namespace nn{
         std::vector<Matrix<T>> weightMatrices;
         std::vector<Matrix<T>> activations;
         float lr;
-
         explicit MLP(std::vector<size_t> unitsPerLayer,float lr=.001f):unitsPerLayer(unitsPerLayer),biasVectors(),weightMatrices(),lr(lr){
             for(size_t i=0;i<unitsPerLayer.size()-1;++i){
                 size_t inChannels=unitsPerLayer[i],outChannels=unitsPerLayer[i+1];
@@ -25,18 +23,11 @@ namespace nn{
                 Matrix b=linalg::mtx<T>::randn(outChannels,1);
                 biasVectors.push_back(b);
 
-                activations.resize(unitsPerLayer.size());
-            }
-        }
-
+                activations.resize(unitsPerLayer.size());}}
         static float sigmoid(float x){
-            return 1.0f/(1+exp(-x));
-        }
-
+            return 1.0f/(1+exp(-x));}
         static float dSigmoid(float x){
-            return (x*(1-x));
-        }
-
+            return (x*(1-x));}
         Matrix<T> forward(Matrix<T> x){
             assert(get<0>(x.shape)==unitsPerLayer[0]&&get<1>(x.shape));
             activations[0]=x;
@@ -46,39 +37,21 @@ namespace nn{
                 y=y+biasVectors[i];
                 y=y.applyFunction(sigmoid);
                 activations[i+1]=y;
-                prev=y;
-            }
-            return prev;
-        }
-
+                prev=y;}
+            return prev;}
         void backprop(Matrix<T> target){
             assert(get<0>(target.shape)==unitsPerLayer.back());
-
             Matrix y=target;
             Matrix yHat=activations.back();
             Matrix error=target-yHat;
             for(int i=weightMatrices.size()-1;i>=0;--i){
                 Matrix Wt=weightMatrices[i].T();
-                //calculate the errors in the activations of the previous layer
-                //Etotal/Eout01
                 Matrix prevErrors=Wt.matmul(error);
-                //calculate the gradients of the activations of the current layer with respect to the error
-                //Eout01/Enet01
                 Matrix dOutputs=activations[i+1].applyFunction(dSigmoid);
                 Matrix gradients=error.multiplyElementwise(dOutputs);
-                //scale gradients by the learning rate
                 gradients=gradients.multiplyScalar(lr);
                 Matrix At=activations[i].T();
-                //calculate the gradients of the weights of the current layer
-                //EnetO1/Ew (weights) = outH1
                 Matrix weightGradients=gradients.matmul(At);
-                //adjust the biases
                 biasVectors[i]=biasVectors[i].add(gradients);
-                //adjust the weights
                 weightMatrices[i]=weightMatrices[i].add(weightGradients);
-                //set the errors to the previous layer ones
-                error=prevErrors;
-            }
-        }
-    };
-}
+                error=prevErrors;}}};}

@@ -34,10 +34,8 @@ class Matrix{
         assert (0 <= col && col < cols);
         return data[row*cols+col];}
     Matrix matmul(Matrix &target) {
-        // std::cout<< rows << "," << target.rows<< std::endl;
         assert(cols == target.rows);
         Matrix output(rows, target.cols);
-
         for (size_t r = 0; r < output.rows; ++r) {
         for (size_t c = 0; c < output.cols; ++c) {
             for (size_t k = 0; k < target.rows; ++k)
@@ -76,7 +74,6 @@ class Matrix{
     Matrix sub(Matrix &target){
         Matrix negtarget(-target);
         return add(negtarget);}
-
     Matrix operator-(Matrix &target){
         return sub(target);}
     Matrix transpose(){

@@ -16,13 +16,10 @@ namespace nn{
         explicit MLP(std::vector<size_t> unitsPerLayer,float lr=.001f):unitsPerLayer(unitsPerLayer),biasVectors(),weightMatrices(),lr(lr){
             for(size_t i=0;i<unitsPerLayer.size()-1;++i){
                 size_t inChannels=unitsPerLayer[i],outChannels=unitsPerLayer[i+1];
-
                 Matrix w=linalg::mtx<T>::randn(outChannels,inChannels);
                 weightMatrices.push_back(w);
-
                 Matrix b=linalg::mtx<T>::randn(outChannels,1);
                 biasVectors.push_back(b);
-
                 activations.resize(unitsPerLayer.size());}}
         static float sigmoid(float x){
             return 1.0f/(1+exp(-x));}
